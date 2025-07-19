@@ -8,6 +8,7 @@
     <form method="post" action="registerProcess.jsp">
         Username: <input type="text" name="username" /><br/>
         Password: <input type="password" name="password" /><br/>
+        Confirm Password: <input type="password" name="confirm_password" /><br/>
         <input type="submit" value="Register" />
     </form>
     
