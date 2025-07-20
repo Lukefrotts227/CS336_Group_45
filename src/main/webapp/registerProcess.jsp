@@ -52,17 +52,17 @@ try {
     }
 
     // Insert into users table
-    insertUserStmt = conn.prepareStatement("INSERT INTO users (username, password) VALUES (?, ?)");
+    insertUserStmt = conn.prepareStatement("INSERT INTO users (username, password, first_name, last_name) VALUES (?, ?, ?, ?)");
     insertUserStmt.setString(1, username);
-    insertUserStmt.setString(2, password); // Consider hashing the password before storing for security!
+    insertUserStmt.setString(2, password);
+    insertUserStmt.setString(3, firstName);
+    insertUserStmt.setString(4, lastName);
     insertUserStmt.executeUpdate();
 
     // Insert into customers table
-    insertCustomerStmt = conn.prepareStatement("INSERT INTO customers (username, email, first_name, last_name) VALUES (?, ?, ?, ?)");
+    insertCustomerStmt = conn.prepareStatement("INSERT INTO customers (username, email) VALUES (?, ?)");
     insertCustomerStmt.setString(1, username);
     insertCustomerStmt.setString(2, email);
-    insertCustomerStmt.setString(3, firstName);
-    insertCustomerStmt.setString(4, lastName);
     insertCustomerStmt.executeUpdate();
 
     out.println("<p>Registration successful! <a href='login.jsp'>Log in here</a>.</p>");

@@ -5,6 +5,8 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.*;
 
 public class CustomerServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -95,27 +97,23 @@ public class CustomerServlet extends HttpServlet {
 					default: rate = 1.0; category = "none"; 
 				}
 				try (Connection conn = new ApplicationDB().getConnection()) {
-					String fareSql =
-			"SELECT fare, departure_date_time " +
-			"FROM train_schedules " +
-			"WHERE schedule_id = ?";
+					String fareSql = "SELECT fare, departure_date_time FROM train_schedules WHERE schedule_id = ?";
 		
 				
-				double baseFare; 
-				Timestamp departTime; 
+					double baseFare; 
+					Timestamp departTime; 
 
-				try(PreparedStatement pf = conn.prepareStatement(fareSql)){
+					try(PreparedStatement pf = conn.prepareStatement(fareSql)){
 
-					pf.setInt(1, scheduleId); 
-					try(ResultSet rs = pf.executeQuery()){
-						if(!rs.next()) throw new SQLException("Could not find schedule"); 
-						rate = rs.getDouble("fare"); 
-						departTime = rs.getTimestamp("departure_date_time"); 
+						pf.setInt(1, scheduleId); 
+						try(ResultSet rs = pf.executeQuery()){
+							if(!rs.next()) throw new SQLException("Could not find schedule"); 
+							rate = rs.getDouble("fare"); 
+							departTime = rs.getTimestamp("departure_date_time"); 
+						}
 					}
-				}
-
-				
-
+				} catch (SQLException e) {
+					e.printStackTrace();
 				}
 			}
 
@@ -124,4 +122,5 @@ public class CustomerServlet extends HttpServlet {
 	        response.sendRedirect("customer/customerdashboard.jsp");
 	    }
 
+	}
 }
