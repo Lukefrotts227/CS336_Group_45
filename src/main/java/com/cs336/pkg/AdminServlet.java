@@ -41,7 +41,7 @@ public class AdminServlet extends HttpServlet {
                 e.printStackTrace();
             }
             request.setAttribute("monthlyReport", report);
-            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/adminDashboard.jsp").forward(request, response);
             return;
         }
 
@@ -80,7 +80,7 @@ public class AdminServlet extends HttpServlet {
             }
 
             request.setAttribute("revenueResult", total);
-            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/adminDashboard.jsp").forward(request, response);
             return;
         }
 
@@ -111,7 +111,7 @@ public class AdminServlet extends HttpServlet {
             }
 
             request.setAttribute("topCustomers", topCustomers);
-            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/adminDashboard.jsp").forward(request, response);
             return;
         }
 
@@ -144,7 +144,7 @@ public class AdminServlet extends HttpServlet {
             }
 
             request.setAttribute("topTransitLines", topTransitLines);
-            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/adminDashboard.jsp").forward(request, response);
             return;
         }
         // For viewing reservations
@@ -199,13 +199,13 @@ public class AdminServlet extends HttpServlet {
             }
 
             request.setAttribute("reservationsList", list);
-            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/adminDashboard.jsp").forward(request, response);
             return;
         }
 
         // Default fallback (optional)
         else {
-            response.sendRedirect("adminDashboard.jsp");
+            response.sendRedirect("/admin/adminDashboard.jsp");
         }
     }
 }

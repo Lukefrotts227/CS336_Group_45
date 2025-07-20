@@ -29,7 +29,7 @@
 		<li><a href="repAnswerQuestions.jsp">Answer Customer Questions</a></li>
 	</ul>
 
-	<form action="../logout.jsp" method="get">
+	<form action="/cs336_group45/logout.jsp" method="get">
     <input type="submit" value="Logout" />
 	</form>
 </body>

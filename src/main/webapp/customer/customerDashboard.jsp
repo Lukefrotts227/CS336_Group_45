@@ -41,7 +41,7 @@
 
 <hr>
 
-<a href="../logout.jsp">Logout</a>
+<a href="/cs336_group45/logout.jsp">Logout</a>
 
 </body>
 </html>
