@@ -84,8 +84,8 @@ CREATE TABLE `questions` (
   `answered_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `customer` (`customer`),
-  CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`customer`) REFERENCES `customer` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`customer`) REFERENCES `customers` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,7 +94,7 @@ CREATE TABLE `questions` (
 
 LOCK TABLES `questions` WRITE;
 /*!40000 ALTER TABLE `questions` DISABLE KEYS */;
-INSERT INTO `questions` VALUES (1,'rep1','Are there any discounts today?',NULL,'2025-07-18 19:44:37',NULL);
+INSERT INTO `questions` VALUES (1,'rep1','Are there any discounts today?',NULL,'2025-07-18 19:44:37',NULL),(5,'test@test.test','jk',NULL,'2025-07-20 18:54:56',NULL);
 /*!40000 ALTER TABLE `questions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,7 +118,7 @@ CREATE TABLE `reservations` (
   KEY `scheduleID` (`schedule_id`),
   CONSTRAINT `reservations_ibfk_1` FOREIGN KEY (`email`) REFERENCES `customers` (`email`),
   CONSTRAINT `reservations_ibfk_2` FOREIGN KEY (`schedule_id`) REFERENCES `train_schedules` (`schedule_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -143,7 +143,7 @@ CREATE TABLE `stations` (
   `city` varchar(100) NOT NULL,
   `state` char(2) NOT NULL,
   PRIMARY KEY (`station_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -152,7 +152,7 @@ CREATE TABLE `stations` (
 
 LOCK TABLES `stations` WRITE;
 /*!40000 ALTER TABLE `stations` DISABLE KEYS */;
-INSERT INTO `stations` VALUES (1,'North','Northtown','NT'),(2,'South','Southtown','ST');
+INSERT INTO `stations` VALUES (1,'North','Northtown','NT'),(2,'South','Southtown','ST'),(3,'Center','Centraltown','CT');
 /*!40000 ALTER TABLE `stations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,7 +175,7 @@ CREATE TABLE `stops` (
   KEY `stationID` (`station_id`),
   CONSTRAINT `stops_ibfk_1` FOREIGN KEY (`schedule_id`) REFERENCES `train_schedules` (`schedule_id`),
   CONSTRAINT `stops_ibfk_2` FOREIGN KEY (`station_id`) REFERENCES `stations` (`station_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,6 +184,7 @@ CREATE TABLE `stops` (
 
 LOCK TABLES `stops` WRITE;
 /*!40000 ALTER TABLE `stops` DISABLE KEYS */;
+INSERT INTO `stops` VALUES (1,1,1,1,NULL,'08:00:00'),(3,1,3,2,'08:45:00','09:00:00'),(4,1,2,3,'10:00:00',NULL);
 /*!40000 ALTER TABLE `stops` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -213,7 +214,7 @@ CREATE TABLE `train_schedules` (
   CONSTRAINT `train_schedules_ibfk_2` FOREIGN KEY (`transit_line_name`) REFERENCES `transit_lines` (`name`),
   CONSTRAINT `train_schedules_ibfk_3` FOREIGN KEY (`origin_station_id`) REFERENCES `stations` (`station_id`),
   CONSTRAINT `train_schedules_ibfk_4` FOREIGN KEY (`destination_station_id`) REFERENCES `stations` (`station_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,6 +223,7 @@ CREATE TABLE `train_schedules` (
 
 LOCK TABLES `train_schedules` WRITE;
 /*!40000 ALTER TABLE `train_schedules` DISABLE KEYS */;
+INSERT INTO `train_schedules` VALUES (1,'0001','Southbound',1,2,'2025-08-01 08:00:00','2025-08-01 10:00:00',120,5.00);
 /*!40000 ALTER TABLE `train_schedules` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -345,4 +347,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-19 22:59:36
+-- Dump completed on 2025-07-20 15:19:25
