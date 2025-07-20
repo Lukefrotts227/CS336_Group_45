@@ -81,4 +81,4 @@
 %>
 </ul>
 
-<a href="logout.jsp">Logout</a>
+<a href="representativeDashboard.jsp">Dashboard</a>
