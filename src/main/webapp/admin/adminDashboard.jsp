@@ -134,6 +134,43 @@
     </table>
 <% } %>
 
+
+<h2>List Reservations by Transit Line or Customer Name</h2>
+<form method="post" action="AdminServlet">
+    <input type="hidden" name="action" value="listReservations" />
+    Transit Line ID: <input type="text" name="transitLineId"><br/>
+    OR<br/>
+    Customer Name: <input type="text" name="customerName"><br/><br/>
+    <input type="submit" value="List Reservations">
+
+</form>
+<%
+  List<String[]> reservations = (List<String[]>)request.getAttribute("reservationsList");
+  if (reservations != null) {
+%>
+  <table border="1">
+    <tr>
+      <th>Resv ID</th>
+      <th>Username</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Transit Line</th>
+      <th>Reservation Time</th>
+    </tr>
+    <% for (String[] r : reservations) { %>
+      <tr>
+        <td><%= r[0] %></td>
+        <td><%= r[1] %></td>
+        <td><%= r[2] %></td>
+        <td><%= r[3] %></td>
+        <td><%= r[4] %></td>
+        <td><%= r[5] %></td>
+      </tr>
+    <% } %>
+  </table>
+<% } %>
+
+
 <form action="../logout.jsp" method="get">
     <input type="submit" value="Logout" />
 </form>

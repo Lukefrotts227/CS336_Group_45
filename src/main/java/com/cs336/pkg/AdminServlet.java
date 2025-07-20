@@ -145,6 +145,61 @@ public class AdminServlet extends HttpServlet {
             request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
             return;
         }
+        // For viewing reservations
+        else if ("listReservations".equals(action)){
+            List<String[]> list = new ArrayList<>();
+            String lineName = request.getParameter("transit_line_id");
+            String name = request.getParameter("customerName");
+            
+            String sql; 
+
+            try (Connection con = new ApplicationDB().getConnection()){
+                PreparedStatement ps; 
+                if (lineName != null && !lineName.isEmpty()) {
+           sql =
+      "SELECT r.reservation_id, c.username, u.first_name, u.last_name, " +
+      "       ts.transit_line_name, r.reservation_date, r.departure_date_time " +
+      "FROM reservations r " +
+      "  JOIN customers     c  ON r.email = c.email " +
+      "  JOIN users         u  ON c.username = u.username " +
+      "  JOIN train_schedules ts ON r.schedule_id = ts.schedule_id " +
+      "WHERE ts.transit_line_name = ?";
+            ps = con.prepareStatement(sql);
+            ps.setString(1, lineName);
+                }else{
+                    sql =
+      "SELECT r.reservation_id, c.username, u.first_name, u.last_name, " +
+      "       ts.transit_line_name, r.reservation_date, r.departure_date_time " +
+      "FROM reservations r " +
+      "  JOIN customers     c  ON r.email = c.email " +
+      "  JOIN users         u  ON c.username = u.username " +
+      "  JOIN train_schedules ts ON r.schedule_id = ts.schedule_id " +
+      "WHERE u.first_name LIKE ? OR u.last_name LIKE ?";
+            ps = con.prepareStatement(sql);
+            String pattern = "%" + name + "%";
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+                }
+                try(ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        String[] row = {
+                            rs.getString("username"),
+                            rs.getString("first_name"),
+                            rs.getString("last_name"),
+                            rs.getString("email")
+                        };
+                        list.add(row);
+                    }
+                }
+                ps.close();
+            } catch( Exception e){
+                throw new ServletException("Error Listing Customers", e);
+            }
+
+            request.setAttribute("reservationsList", list);
+            request.getRequestDispatcher("adminDashboard.jsp").forward(request, response);
+            return;
+        }
 
         // Default fallback (optional)
         else {
