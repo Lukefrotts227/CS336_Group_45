@@ -57,6 +57,3 @@
     conn.close();
 %>
 </table>
-
-<a href="searchSchedules.jsp">Search Schedules</a><br/>
-<a href="logout.jsp">Logout</a>

@@ -39,4 +39,3 @@
     <input type="submit" value="Submit">
 </form>
 
-<a href="logout.jsp">Logout</a>

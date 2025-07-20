@@ -3,80 +3,73 @@
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 <%
+
+	ApplicationDB db = new ApplicationDB();
+	Connection conn = null;
+	PreparedStatement stmt = null;
+	ResultSet rs = null;
+	
     String username = request.getParameter("username");
     String password = request.getParameter("password");
 
     boolean valid = false;
 
     try {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection conn = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/cs336_group45?useSSL=false",
-            "root", "bigmike123"
-        );
+        conn = db.getConnection();
 
-        PreparedStatement stmt = conn.prepareStatement(
-        	    "SELECT role FROM users WHERE username=? AND password=?"
+        stmt = conn.prepareStatement(
+        	    "SELECT username FROM users WHERE username=? AND password=?"
         	);
         	stmt.setString(1, username);
         	stmt.setString(2, password);
-        	ResultSet rs = stmt.executeQuery();
+        	rs = stmt.executeQuery();
 
         	if (rs.next()) {
         	    valid = true;
-        	    String role = rs.getString("role");
         	    session.setAttribute("username", username);
-        	    session.setAttribute("role", role);
+        	    
+        	    PreparedStatement roleStmt = conn.prepareStatement(
+        	    		"SELECT user_type FROM user_roles where username=?"
+        	    );
+        	    roleStmt.setString(1, username);
+        	    ResultSet roleRs = roleStmt.executeQuery();
+        	    
+        	    if (roleRs.next()) {
+        	    	String role = roleRs.getString("user_type");
+        	    	session.setAttribute("role", role);
+        	    }
+        	    
+        	    roleRs.close();
+        	    roleStmt.close();
         	}
-
-
-        rs.close();
-        stmt.close();
-        conn.close();
     } catch (Exception e) {
         out.println("Error: " + e.getMessage());
+    } finally {
+    	if (rs != null) { rs.close(); }
+    	if (stmt != null) {stmt.close(); }
+    	if (conn != null) {
+    		db.closeConnection(conn);
+    	}
     }
 
     if (valid) {
+    	String role = (String) session.getAttribute("role");
+    	if ("customer".equals(role)) {
+    		response.sendRedirect("customer/customerDashboard.jsp");
+    	} else if ("representative".equals(role)) {
+    		response.sendRedirect("representative/representativeDashboard.jsp");
+    	} else if ("manager".equals(role)) {
+    		response.sendRedirect("admin/adminDashboard.jsp");
+    	} else {
 %>
-        <p>Login successful. Welcome, <%= username %>! You are logged in as <%= session.getAttribute("role") %>.</p>
-
+        <p>Unknown role: <%= role %>. Please contact support.</p>
+        <a href="login.jsp">Login</a>
 <%
-    String role = (String) session.getAttribute("role");
-    if ("customer".equals(role)) {
-%>
-        <a href="searchSchedules.jsp">Search Train Schedules</a><br/>
-        <a href="myReservations.jsp">View My Reservations</a><br/>
-        <a href="askQuestion.jsp">Ask a Question</a><br/>
-        
-        
-        
-<%
-    } else if ("representative".equals(role)) {
-%>
-          <a href="repManageSchedules.jsp">Manage Train Schedules</a><br/>
-          <a href="repAnswerQuestions.jsp">Answer Customer Questions</a><br/>
-          <a href="repListCustomers.jsp">List Customers for Train & Date</a><br/>
-          <a href="repListSchedulesByStation.jsp">List Schedules for Station</a><br/>
-          
-          
-          
-<%
-    } else if ("manager".equals(role)) {
-%>
-        <p>Manager dashboard coming soon!</p>
-<%
-    }
-%>
-
-<a href="logout.jsp">Logout</a>
-
-
-<%
+    	}
     } else {
 %>
-        <p>Login failed. Invalid username or password.</p>
+		<p>Login failed. Invalid username or password.</p>
         <a href="login.jsp">Try Again</a>
-<%
+<% 
     }
 %>

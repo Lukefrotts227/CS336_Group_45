@@ -38,6 +38,3 @@
 <%
     }
 %>
-
-<a href="myReservations.jsp">Back to My Reservations</a><br/>
-<a href="logout.jsp">Logout</a>

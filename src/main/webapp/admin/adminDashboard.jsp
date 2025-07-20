@@ -134,7 +134,9 @@
     </table>
 <% } %>
 
-
+<form action="../logout.jsp" method="get">
+    <input type="submit" value="Logout" />
+</form>
 
 </body>
 </html>

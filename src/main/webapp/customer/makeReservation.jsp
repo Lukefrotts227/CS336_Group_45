@@ -39,6 +39,3 @@
     }
 %>
 
-<a href="searchSchedules.jsp">Back to Search</a><br/>
-<a href="myReservations.jsp">My Current Reservations</a><br/>
-<a href="logout.jsp">Logout</a>
