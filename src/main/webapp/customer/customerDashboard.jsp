@@ -16,7 +16,7 @@
 <% if (askQuestionMessage != null) { %>
     <p><%= askQuestionMessage %></p>
 <% } %>
-<form method="post" action="CustomerServlet?action=askQuestion">
+<form method="post" action="../CustomerServlet?action=askQuestion">
     <textarea name="question" rows="4" cols="50"></textarea><br/>
     <input type="submit" value="Submit Question">
 </form>
