@@ -1,6 +1,15 @@
 <%@ page import="com.cs336.pkg.ApplicationDB"%>
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
+<%@ page session="true" contentType="text/html charset=UTF-8" %>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Make a Reservation</title>
+</head>
+<body>
 
 <%
     String username = (String) session.getAttribute("username");
@@ -39,3 +48,5 @@
     }
 %>
 
+</body>
+</html>

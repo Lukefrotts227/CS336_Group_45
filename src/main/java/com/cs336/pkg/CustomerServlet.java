@@ -3,8 +3,7 @@ package com.cs336.pkg;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.*;
 
 public class CustomerServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -109,19 +108,38 @@ public class CustomerServlet extends HttpServlet {
 					pf.setInt(1, scheduleId); 
 					try(ResultSet rs = pf.executeQuery()){
 						if(!rs.next()) throw new SQLException("Could not find schedule"); 
-						rate = rs.getDouble("fare"); 
+						baseFare = rs.getDouble("fare"); 
 						departTime = rs.getTimestamp("departure_date_time"); 
 					}
 				}
 
-				
+				double totalFare = rate * baseFare; 
 
+				String insert = "INSERT INTO reservations " +
+          "(email, schedule_id, reservation_date, departure_date_time, total_fare, reservation_type) " +
+          "VALUES (?, ?, CURRENT_DATE(), ?, ?, ?)";
+
+				try (PreparedStatement p = conn.prepareStatement(insert)){
+					p.setString(1, username); 
+					p.setInt(2, scheduleId); 
+					p.setTimestamp(3, departTime); 
+					p.setDouble(4, totalFare); 
+					p.setString(5, category); 
+					p.executeUpdate(); 
 				}
+
+				request.setAttribute("message", String.format("Successfully Booked! Your fare: $%.2f (%s discount)"), totalFare, category); 
+
+				}catch(Exception e){ e.printStackTrace();}
+
+				request.getRequestDispatcher("customer/confirmation.jsp").forward(request, response); 
+				return; 
 			}
 
 			else{
 	        // For unknown actions, redirect back to dashboard
 	        response.sendRedirect("customer/customerdashboard.jsp");
-	    }
-
-}
+			}
+			
+	}
+}		
