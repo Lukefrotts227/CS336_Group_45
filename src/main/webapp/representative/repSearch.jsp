@@ -99,7 +99,7 @@
             %> 
             <p>Error: <%= e.getMessage() %></p>
             <%
-            e.printStackTrace(e); 
+             out.println("<p>Error: " + e.getMessage() + "</p>"); 
         }
     }
 %>
