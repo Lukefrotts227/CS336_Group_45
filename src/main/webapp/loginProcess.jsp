@@ -13,6 +13,8 @@
     String password = request.getParameter("password");
 
     boolean valid = false;
+    String role = null;
+    String email = null;
 
     try {
         conn = db.getConnection();
@@ -35,12 +37,28 @@
         	    ResultSet roleRs = roleStmt.executeQuery();
         	    
         	    if (roleRs.next()) {
-        	    	String role = roleRs.getString("user_type");
+        	    	role = roleRs.getString("user_type");
         	    	session.setAttribute("role", role);
         	    }
         	    
         	    roleRs.close();
         	    roleStmt.close();
+        	    
+        	    if ("customer".equals(role)) {
+                    PreparedStatement customerStmt = conn.prepareStatement(
+                        "SELECT email FROM customers WHERE username = ?"
+                    );
+                    customerStmt.setString(1, username);
+                    ResultSet customerRs = customerStmt.executeQuery();
+
+                    if (customerRs.next()) {
+                        email = customerRs.getString("email");
+                        session.setAttribute("email", email);
+                    }
+
+                    customerRs.close();
+                    customerStmt.close();
+                }
         	}
     } catch (Exception e) {
         out.println("Error: " + e.getMessage());
@@ -53,7 +71,6 @@
     }
 
     if (valid) {
-    	String role = (String) session.getAttribute("role");
     	if ("customer".equals(role)) {
     		response.sendRedirect("customer/customerDashboard.jsp");
     	} else if ("representative".equals(role)) {
