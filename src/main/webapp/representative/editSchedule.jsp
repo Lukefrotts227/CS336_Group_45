@@ -13,6 +13,8 @@
     }
 
     String idParam = request.getParameter("id");
+    int scheduleId = -1;
+
     if (idParam == null) {
 %>
     <p>No schedule ID provided.</p>
@@ -21,54 +23,19 @@
         return;
     }
 
-    int scheduleId = Integer.parseInt(idParam);
+    try {
+        scheduleId = Integer.parseInt(idParam);
+    } catch (NumberFormatException e) {
+        out.println("<p>Invalid schedule ID.</p>");
+        return;
+    }
 
     ApplicationDB db = new ApplicationDB();
     Connection conn = db.getConnection();
 
-    if ("POST".equalsIgnoreCase(request.getMethod())) {
-        // Handle form submission
-        String trainNumber = request.getParameter("train_number");
-        String origin = request.getParameter("origin_station");
-        String destination = request.getParameter("destination_station");
-        String departure = request.getParameter("departure_time");
-        String arrival = request.getParameter("arrival_time");
-        String price = request.getParameter("price");
-
-        PreparedStatement updateStmt = conn.prepareStatement(
-            "UPDATE train_schedules SET train_number=?, origin_station=?, destination_station=?, departure_time=?, arrival_time=?, price=? WHERE id=?"
-        );
-        updateStmt.setString(1, trainNumber);
-        updateStmt.setString(2, origin);
-        updateStmt.setString(3, destination);
-        updateStmt.setString(4, departure);
-        updateStmt.setString(5, arrival);
-        updateStmt.setBigDecimal(6, new java.math.BigDecimal(price));
-        updateStmt.setInt(7, scheduleId);
-
-        int result = updateStmt.executeUpdate();
-
-        updateStmt.close();
-        conn.close();
-
-        if (result > 0) {
-%>
-    <p>Schedule updated successfully.</p>
-<%
-        } else {
-%>
-    <p>Failed to update schedule.</p>
-<%
-        }
-%>
-    <a href="repManageSchedules.jsp">Back to Manage Schedules</a>
-<%
-        return;
-    }
-
-    // GET request - show current values
+    // Use the correct column name 'schedule_id' here
     PreparedStatement stmt = conn.prepareStatement(
-        "SELECT * FROM train_schedules WHERE id=?"
+        "SELECT * FROM train_schedules WHERE schedule_id=?"
     );
     stmt.setInt(1, scheduleId);
 
@@ -86,14 +53,14 @@
 %>
 
 <h2>Edit Schedule ID <%= scheduleId %></h2>
-
 <form method="post" action="editSchedule.jsp?id=<%= scheduleId %>">
-    Train Number: <input type="text" name="train_number" value="<%= rs.getString("train_number") %>"><br/>
-    Origin: <input type="text" name="origin_station" value="<%= rs.getString("origin_station") %>"><br/>
-    Destination: <input type="text" name="destination_station" value="<%= rs.getString("destination_station") %>"><br/>
-    Departure: <input type="text" name="departure_time" value="<%= rs.getTimestamp("departure_time") %>"><br/>
-    Arrival: <input type="text" name="arrival_time" value="<%= rs.getTimestamp("arrival_time") %>"><br/>
-    Price: <input type="text" name="price" value="<%= rs.getBigDecimal("price") %>"><br/>
+    <!-- Form Fields to Update the Schedule -->
+    Train Number: <input type="text" name="train_number" value="<%= rs.getString("train_id") %>"><br/>
+    Origin: <input type="text" name="origin_station" value="<%= rs.getString("origin_station_id") %>"><br/>
+    Destination: <input type="text" name="destination_station" value="<%= rs.getString("destination_station_id") %>"><br/>
+    Departure: <input type="text" name="departure_time" value="<%= rs.getTimestamp("departure_date_time") %>"><br/>
+    Arrival: <input type="text" name="arrival_time" value="<%= rs.getTimestamp("arrival_date_time") %>"><br/>
+    Price: <input type="text" name="price" value="<%= rs.getBigDecimal("fare") %>"><br/>
     <input type="submit" value="Update">
 </form>
 
