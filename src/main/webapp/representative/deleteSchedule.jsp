@@ -2,6 +2,10 @@
 <%@ page import="java.sql.*"%>
 <%@ page import="javax.servlet.http.*,javax.servlet.*"%>
 
+<%@ page import="com.cs336.pkg.ApplicationDB"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="javax.servlet.http.*,javax.servlet.*"%>
+
 <%
     String role = (String) session.getAttribute("role");
     if (role == null || !"representative".equals(role)) {
@@ -13,6 +17,8 @@
     }
 
     String idParam = request.getParameter("id");
+    int scheduleId = -1; // Initialize with an invalid value
+
     if (idParam == null) {
 %>
     <p>No schedule ID provided.</p>
@@ -21,13 +27,19 @@
         return;
     }
 
-    int scheduleId = Integer.parseInt(idParam);
+    try {
+        scheduleId = Integer.parseInt(idParam);
+    } catch (NumberFormatException e) {
+        out.println("<p>Invalid schedule ID.</p>");
+        return;
+    }
 
     ApplicationDB db = new ApplicationDB();
     Connection conn = db.getConnection();
 
+    // Update the query to use schedule_id instead of id
     PreparedStatement stmt = conn.prepareStatement(
-        "DELETE FROM train_schedules WHERE id=?"
+        "DELETE FROM train_schedules WHERE schedule_id=?"
     );
     stmt.setInt(1, scheduleId);
 
