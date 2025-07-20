@@ -2,32 +2,37 @@
 <%@ page import="java.sql.*"%>
 
 <%
+    // Check for role to ensure only representatives can access this page
     String role = (String) session.getAttribute("role");
     if (role == null || !"representative".equals(role)) {
 %>
-    <p>Access denied. <a href="login.jsp">Login</a></p>
+    <p>Access denied. This page is for representatives only.</p>
+    <a href="login.jsp">Login</a>
 <%
         return;
     }
-
-    String station = request.getParameter("station");
 %>
 
-<h2>List Schedules for a Station</h2>
+<h2>Search Schedules by Station</h2>
 
-<form method="get">
-    Station Name: <input type="text" name="station" value="<%= station != null ? station : "" %>"><br/>
+<!-- Search Form for Station -->
+<form method="get" action="repListSchedulesByStation.jsp">
+    <label for="station">Enter Station Name or ID:</label>
+    <input type="text" id="station" name="station" required>
     <input type="submit" value="Search">
 </form>
 
 <%
+    // If station is provided, search for the schedules
+    String station = request.getParameter("station");
+
     if (station != null && !station.trim().isEmpty()) {
         ApplicationDB db = new ApplicationDB();
         Connection conn = db.getConnection();
 
-        PreparedStatement stmt = conn.prepareStatement(
-            "SELECT * FROM train_schedules WHERE origin_station=? OR destination_station=?"
-        );
+        // SQL Query to fetch schedules where the station is either the origin or destination
+        String sql = "SELECT * FROM train_schedules WHERE origin_station_id = ? OR destination_station_id = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setString(1, station);
         stmt.setString(2, station);
 
@@ -37,21 +42,24 @@
 <h3>Schedules for Station: <%= station %></h3>
 
 <table border="1">
-<tr><th>ID</th><th>Train</th><th>Origin</th><th>Destination</th><th>Departure</th><th>Arrival</th><th>Price</th></tr>
+<tr>
+    <th>Schedule ID</th><th>Train #</th><th>Origin</th><th>Destination</th>
+    <th>Departure</th><th>Arrival</th><th>Price</th>
+</tr>
 
 <%
         boolean hasResults = false;
-        while(rs.next()) {
+        while (rs.next()) {
             hasResults = true;
 %>
 <tr>
-    <td><%= rs.getInt("id") %></td>
-    <td><%= rs.getString("train_number") %></td>
-    <td><%= rs.getString("origin_station") %></td>
-    <td><%= rs.getString("destination_station") %></td>
-    <td><%= rs.getTimestamp("departure_time") %></td>
-    <td><%= rs.getTimestamp("arrival_time") %></td>
-    <td>$<%= rs.getBigDecimal("price") %></td>
+    <td><%= rs.getInt("schedule_id") %></td>
+    <td><%= rs.getString("train_id") %></td>
+    <td><%= rs.getInt("origin_station_id") %></td> <!-- Origin station ID -->
+    <td><%= rs.getInt("destination_station_id") %></td> <!-- Destination station ID -->
+    <td><%= rs.getTimestamp("departure_date_time") %></td>
+    <td><%= rs.getTimestamp("arrival_date_time") %></td>
+    <td>$<%= rs.getBigDecimal("fare") %></td>
 </tr>
 <%
         }
@@ -66,6 +74,7 @@
         conn.close();
     }
 %>
+
 </table>
 
-<a href="logout.jsp">Logout</a>
+<a href="representativeDashboard.jsp">Dashboard</a>
