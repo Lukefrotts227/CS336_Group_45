@@ -5,7 +5,7 @@
 <h2>Manage Customer Representatives</h2>
 
 <!-- Add/Edit Rep -->
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
     <input type="hidden" name="action" value="saveRep" />
     ID: <input type="text" name="id"><br/>
     Name: <input type="text" name="name"><br/>
@@ -15,7 +15,7 @@
 </form>
 
 <!-- Delete Rep -->
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
     <input type="hidden" name="action" value="deleteRep" />
     ID: <input type="text" name="id">
     <input type="submit" value="Delete Rep">
@@ -26,7 +26,7 @@
 </a> -->
 
 <h2>Monthly Sales Report</h2>
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
 	<input type="hidden" name="action" value="montlyReport" />
 	<input type="submit" value="Generate Report">
 </form>
@@ -50,7 +50,7 @@
 
 <h2>Revenue by Transit Line or Customer</h2>
 
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
     <input type="hidden" name="action" value="revenueLookup" />
     
     Transit Line ID: <input type="text" name="transitLineId"><br/>
@@ -69,7 +69,7 @@
 
 <h2>Top 5 Revenue-Generating Customers</h2>
 
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
     <input type="hidden" name="action" value="topCustomers" />
     <input type="submit" value="Find Top 5 Customers">
 </form>
@@ -103,7 +103,7 @@
 
 <h2>Top 5 Most Active Transit Lines (Per Month)</h2>
 
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
     <input type="hidden" name="action" value="topTransitLines" />
     <input type="submit" value="Find Top 5 Transit Lines">
 </form>
@@ -136,7 +136,7 @@
 
 
 <h2>List Reservations by Transit Line or Customer Name</h2>
-<form method="post" action="AdminServlet">
+<form method="post" action="../AdminServlet">
     <input type="hidden" name="action" value="listReservations" />
     Transit Line ID: <input type="text" name="transitLineId"><br/>
     OR<br/>

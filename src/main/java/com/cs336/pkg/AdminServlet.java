@@ -7,6 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import com.cs336.pkg.ApplicationDB;
 public class AdminServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
