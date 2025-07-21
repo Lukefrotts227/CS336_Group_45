@@ -123,42 +123,50 @@ public class ApplicationDB {
     }
 
     // Get Top 5 Revenue-Generating Customers
-    public List<String[]> getTopCustomers() {
-        String query = "SELECT customer_id, SUM(total_fare) AS total_revenue FROM reservations GROUP BY customer_id ORDER BY total_revenue DESC LIMIT 5";
-        List<String[]> topCustomers = new ArrayList<>();
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                String[] row = { rs.getString("customer_id"), rs.getString("total_revenue") };
-                topCustomers.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+   public List<String[]> getTopCustomers() {
+    String query = "SELECT r.email AS customer_email, SUM(r.total_fare) AS total_revenue " +
+                   "FROM reservations r " +
+                   "JOIN customers c ON r.email = c.email " +
+                   "GROUP BY r.email " +
+                   "ORDER BY total_revenue DESC " +
+                   "LIMIT 5";
+    List<String[]> topCustomers = new ArrayList<>();
+    try (Connection connection = getConnection();
+         PreparedStatement stmt = connection.prepareStatement(query);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            String[] row = { rs.getString("customer_email"), rs.getString("total_revenue") };
+            topCustomers.add(row);
         }
-        return topCustomers;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return topCustomers;
+}
+
 
     // Get Top 5 Most Active Transit Lines
     public List<String[]> getTopTransitLines() {
-        String query = "SELECT transit_line_id, COUNT(*) AS reservation_count " +
-                       "FROM reservations " +
-                       "GROUP BY transit_line_id " +
-                       "ORDER BY reservation_count DESC " +
-                       "LIMIT 5";
-        List<String[]> topTransitLines = new ArrayList<>();
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                String[] row = { rs.getString("transit_line_id"), rs.getString("reservation_count") };
-                topTransitLines.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    String query = "SELECT ts.transit_line_name, COUNT(*) AS reservation_count " +
+                   "FROM reservations r " +
+                   "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id " +
+                   "GROUP BY ts.transit_line_name " +
+                   "ORDER BY reservation_count DESC " +
+                   "LIMIT 5";
+    List<String[]> topTransitLines = new ArrayList<>();
+    try (Connection connection = getConnection();
+         PreparedStatement stmt = connection.prepareStatement(query);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            String[] row = { rs.getString("transit_line_name"), rs.getString("reservation_count") };
+            topTransitLines.add(row);
         }
-        return topTransitLines;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return topTransitLines;
+}
+
 
 
     // Get Reservations by Transit Line or Customer Name
