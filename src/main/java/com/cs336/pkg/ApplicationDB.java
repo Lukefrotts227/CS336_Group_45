@@ -157,20 +157,87 @@ public class ApplicationDB {
 
     // Get Reservations by Transit Line or Customer Name
     public List<String[]> getReservationsByCriteria(String transitLineId, String customerName) {
-        String query = "SELECT reservation_id, customer_name, reservation_time, transit_line FROM reservations WHERE transit_line_id=? OR customer_name LIKE ?";
-        List<String[]> reservations = new ArrayList<>();
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, transitLineId);
-            stmt.setString(2, "%" + customerName + "%");
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                String[] row = { rs.getString("reservation_id"), rs.getString("customer_name"), rs.getString("reservation_time"), rs.getString("transit_line") };
-                reservations.add(row);
+        List<String[]> results = new ArrayList<>();
+
+        String sqlLineOnly =
+          "SELECT r.reservation_id, CONCAT(u.first_name,' ',u.last_name) AS customer_name, "
+        + "       r.departure_date_time AS reservation_time, ts.transit_line_name AS transit_line "
+        + "FROM reservations r "
+        + "JOIN customers c ON r.email = c.email "
+        + "JOIN users u ON c.username = u.username "
+        + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+        + "WHERE ts.transit_line_name = ? "
+        + "ORDER BY r.departure_date_time";
+
+        String sqlNameOnly =
+          "SELECT r.reservation_id, CONCAT(u.first_name,' ',u.last_name) AS customer_name, "
+        + "       r.departure_date_time AS reservation_time, ts.transit_line_name AS transit_line "
+        + "FROM reservations r "
+        + "JOIN customers c ON r.email = c.email "
+        + "JOIN users u ON c.username = u.username "
+        + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+        + "WHERE u.username LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? "
+        + "ORDER BY r.departure_date_time";
+
+        String sqlBoth =
+          "SELECT r.reservation_id, CONCAT(u.first_name,' ',u.last_name) AS customer_name, "
+        + "       r.departure_date_time AS reservation_time, ts.transit_line_name AS transit_line "
+        + "FROM reservations r "
+        + "JOIN customers c ON r.email = c.email "
+        + "JOIN users u ON c.username = u.username "
+        + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+        + "WHERE ts.transit_line_name = ? "
+        + "  AND (u.username LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?) "
+        + "ORDER BY r.departure_date_time";
+
+        try (Connection con = getConnection()) {
+            PreparedStatement ps;
+
+            boolean hasLine = transitLineId   != null && !transitLineId.trim().isEmpty();
+            boolean hasName = customerName    != null && !customerName.trim().isEmpty();
+
+            if (hasLine && !hasName) {
+                ps = con.prepareStatement(sqlLineOnly);
+                ps.setString(1, transitLineId.trim());
+
+            } else if (!hasLine && hasName) {
+                ps = con.prepareStatement(sqlNameOnly);
+                String p = "%" + customerName.trim() + "%";
+                ps.setString(1, p);
+                ps.setString(2, p);
+                ps.setString(3, p);
+
+            } else if (hasLine && hasName) {
+                ps = con.prepareStatement(sqlBoth);
+                ps.setString(1, transitLineId.trim());
+                String p = "%" + customerName.trim() + "%";
+                ps.setString(2, p);
+                ps.setString(3, p);
+                ps.setString(4, p);
+
+            } else {
+                // no criteria → return empty list
+                return results;
             }
+
+            // execute and auto-close result set
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(new String[]{
+                        rs.getString("reservation_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("reservation_time"),
+                        rs.getString("transit_line")
+                    });
+                }
+            }
+
         } catch (SQLException e) {
+            // now all SQLExceptions (including close failures) are caught here
             e.printStackTrace();
         }
-        return reservations;
+
+        return results;
     }
+
 }
