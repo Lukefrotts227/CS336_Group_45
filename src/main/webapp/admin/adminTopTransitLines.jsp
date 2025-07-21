@@ -43,5 +43,6 @@
     }
 %>
 
+<a href="adminDashboard.jsp">Dashboard</a>
 </body>
 </html>

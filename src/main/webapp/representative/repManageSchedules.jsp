@@ -22,9 +22,7 @@
 <h2>Manage Train Schedules</h2>
 
 <!-- Add Schedule Button -->
-<a href="addSchedule.jsp">
-    <button>Add New Schedule</button>
-</a>
+
 
 <table border="1">
 <tr>
@@ -38,10 +36,12 @@
 <tr>
     <td><%= rs.getInt("schedule_id") %></td>
     <td><%= rs.getString("train_id") %></td>
+    <td><%= rs.getString("transit_line_name") %></td>
     <td><%= rs.getString("origin_station_id") %></td>
     <td><%= rs.getString("destination_station_id") %></td>
     <td><%= rs.getTimestamp("departure_date_time") %></td>
     <td><%= rs.getTimestamp("arrival_date_time") %></td>
+    <td><%= rs.getTimestamp("travel_time") %></td>
     <td>$<%= rs.getBigDecimal("fare") %></td>
     <td>
         <a href="editSchedule.jsp?id=<%= rs.getInt("schedule_id") %>">Edit</a> |
