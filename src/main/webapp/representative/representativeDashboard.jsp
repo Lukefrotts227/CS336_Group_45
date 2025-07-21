@@ -27,6 +27,7 @@
 		<li><a href="repListSchedulesByStation.jsp">List Schedules by Station</a></li>
 		<li><a href="repListCustomers.jsp">List Customers</a></li>
 		<li><a href="repAnswerQuestions.jsp">Answer Customer Questions</a></li>
+		<li><a href="repSearch.jsp">Search</a></li>
 	</ul>
 
 	<form action="/cs336_group45/logout.jsp" method="get">
