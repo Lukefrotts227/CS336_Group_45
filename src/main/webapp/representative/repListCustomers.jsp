@@ -27,56 +27,69 @@
         (date != null && !date.trim().isEmpty())) {
 
         ApplicationDB db = new ApplicationDB();
-        Connection conn = db.getConnection();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-        StringBuilder sql = new StringBuilder(
-        	    "SELECT DISTINCT r.username FROM reservations r " +
-        	    "JOIN train_schedules ts ON r.schedule_id = ts.id " +
-        	    "JOIN users u ON r.username = u.username " +
-        	    "WHERE u.role='customer'"
-        	);
+        try {
+            conn = db.getConnection();
 
+            StringBuilder sql = new StringBuilder(
+                    "SELECT DISTINCT r.email FROM reservations r " +
+                    "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id " +
+                    "JOIN customers c ON r.email = c.email " +
+                    "JOIN users u ON c.username = u.username " +
+                    "WHERE u.role = 'customer'"
+            );
 
-        if (trainNumber != null && !trainNumber.trim().isEmpty()) {
-            sql.append(" AND ts.train_number=?");
-        }
-        if (date != null && !date.trim().isEmpty()) {
-            sql.append(" AND DATE(ts.departure_time)=?");
-        }
+            if (trainNumber != null && !trainNumber.trim().isEmpty()) {
+                sql.append(" AND ts.train_id = ?");
+            }
+            if (date != null && !date.trim().isEmpty()) {
+                sql.append(" AND DATE(ts.departure_date_time) = ?");
+            }
 
-        PreparedStatement stmt = conn.prepareStatement(sql.toString());
+            stmt = conn.prepareStatement(sql.toString());
 
-        int paramIndex = 1;
-        if (trainNumber != null && !trainNumber.trim().isEmpty()) {
-            stmt.setString(paramIndex++, trainNumber);
-        }
-        if (date != null && !date.trim().isEmpty()) {
-            stmt.setString(paramIndex++, date);
-        }
+            int paramIndex = 1;
+            if (trainNumber != null && !trainNumber.trim().isEmpty()) {
+                stmt.setString(paramIndex++, trainNumber);
+            }
+            if (date != null && !date.trim().isEmpty()) {
+                stmt.setString(paramIndex++, date);
+            }
 
-        ResultSet rs = stmt.executeQuery();
+            rs = stmt.executeQuery();
 %>
 
 <h3>Results:</h3>
 
 <ul>
 <%
-        boolean found = false;
-        while (rs.next()) {
-            found = true;
+            boolean found = false;
+            while (rs.next()) {
+                found = true;
 %>
-    <li><%= rs.getString("username") %></li>
+    <li><%= rs.getString("email") %></li> <!-- Displaying email instead of username -->
 <%
-        }
-        if (!found) {
+            }
+            if (!found) {
 %>
     <li>No customers found.</li>
 <%
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+<%
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
-
-        rs.close();
-        stmt.close();
-        conn.close();
     }
 %>
 </ul>

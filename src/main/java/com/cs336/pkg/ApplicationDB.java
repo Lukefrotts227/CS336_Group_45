@@ -103,23 +103,53 @@ public class ApplicationDB {
 
     // Get Revenue by Transit Line or Customer
     public String getRevenue(String transitLineId, String customerId) {
-        String query = "SELECT SUM(r.total_fare) " +
-        		"FROM reservations r " + 
-        		"JOIN train_schedules ts ON r.schedule_id = ts.schedule_id" +
-        		"JOIN transit_lines tl ON ts.transit_line_name = tl.name" +
-        		"WHERE tl.name=? OR email=?";
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, transitLineId);
-            stmt.setString(2, customerId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "0";
+    	String sqlLineOnly =
+    		      "SELECT SUM(r.total_fare) "
+    		    + "FROM reservations r "
+    		    + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+    		    + "WHERE ts.transit_line_name = ?";
+    		    
+    		    String sqlCustomerOnly =
+    		      "SELECT SUM(r.total_fare) "
+    		    + "FROM reservations r "
+    		    + "WHERE r.email = ?";
+    		    
+    		    String sqlBoth =
+    		      "SELECT SUM(r.total_fare) "
+    		    + "FROM reservations r "
+    		    + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+    		    + "WHERE ts.transit_line_name = ? AND r.email = ?";
+    		    
+    		    boolean hasLine     = transitLineId  != null && !transitLineId.trim().isEmpty();
+    		    boolean hasCustomer = customerId     != null && !customerId.trim().isEmpty();
+    		    if (!hasLine && !hasCustomer) return "0";
+    		    
+    		    String sql = hasLine && hasCustomer
+    		               ? sqlBoth
+    		               : hasLine
+    		               ? sqlLineOnly
+    		               : sqlCustomerOnly;
+    		    
+    		    try (Connection con = getConnection();
+    		         PreparedStatement ps = con.prepareStatement(sql)) {
+    		        
+    		        if (hasLine && hasCustomer) {
+    		            ps.setString(1, transitLineId.trim());
+    		            ps.setString(2, customerId.trim());
+    		        } else {
+    		            ps.setString(1, (hasLine ? transitLineId : customerId).trim());
+    		        }
+    		        
+    		        try (ResultSet rs = ps.executeQuery()) {
+    		            if (rs.next()) {
+    		                String total = rs.getString(1);
+    		                return total != null ? total : "0";
+    		            }
+    		        }
+    		    } catch (SQLException e) {
+    		        e.printStackTrace();
+    		    }
+    		    return "0";
     }
 
     // Get Top 5 Revenue-Generating Customers
@@ -171,20 +201,87 @@ public class ApplicationDB {
 
     // Get Reservations by Transit Line or Customer Name
     public List<String[]> getReservationsByCriteria(String transitLineId, String customerName) {
-        String query = "SELECT reservation_id, customer_name, reservation_time, transit_line FROM reservations WHERE transit_line_id=? OR customer_name LIKE ?";
-        List<String[]> reservations = new ArrayList<>();
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, transitLineId);
-            stmt.setString(2, "%" + customerName + "%");
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                String[] row = { rs.getString("reservation_id"), rs.getString("customer_name"), rs.getString("reservation_time"), rs.getString("transit_line") };
-                reservations.add(row);
+        List<String[]> results = new ArrayList<>();
+
+        String sqlLineOnly =
+          "SELECT r.reservation_id, CONCAT(u.first_name,' ',u.last_name) AS customer_name, "
+        + "       r.departure_date_time AS reservation_time, ts.transit_line_name AS transit_line "
+        + "FROM reservations r "
+        + "JOIN customers c ON r.email = c.email "
+        + "JOIN users u ON c.username = u.username "
+        + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+        + "WHERE ts.transit_line_name = ? "
+        + "ORDER BY r.departure_date_time";
+
+        String sqlNameOnly =
+          "SELECT r.reservation_id, CONCAT(u.first_name,' ',u.last_name) AS customer_name, "
+        + "       r.departure_date_time AS reservation_time, ts.transit_line_name AS transit_line "
+        + "FROM reservations r "
+        + "JOIN customers c ON r.email = c.email "
+        + "JOIN users u ON c.username = u.username "
+        + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+        + "WHERE u.username LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ? "
+        + "ORDER BY r.departure_date_time";
+
+        String sqlBoth =
+          "SELECT r.reservation_id, CONCAT(u.first_name,' ',u.last_name) AS customer_name, "
+        + "       r.departure_date_time AS reservation_time, ts.transit_line_name AS transit_line "
+        + "FROM reservations r "
+        + "JOIN customers c ON r.email = c.email "
+        + "JOIN users u ON c.username = u.username "
+        + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+        + "WHERE ts.transit_line_name = ? "
+        + "  AND (u.username LIKE ? OR u.first_name LIKE ? OR u.last_name LIKE ?) "
+        + "ORDER BY r.departure_date_time";
+
+        try (Connection con = getConnection()) {
+            PreparedStatement ps;
+
+            boolean hasLine = transitLineId   != null && !transitLineId.trim().isEmpty();
+            boolean hasName = customerName    != null && !customerName.trim().isEmpty();
+
+            if (hasLine && !hasName) {
+                ps = con.prepareStatement(sqlLineOnly);
+                ps.setString(1, transitLineId.trim());
+
+            } else if (!hasLine && hasName) {
+                ps = con.prepareStatement(sqlNameOnly);
+                String p = "%" + customerName.trim() + "%";
+                ps.setString(1, p);
+                ps.setString(2, p);
+                ps.setString(3, p);
+
+            } else if (hasLine && hasName) {
+                ps = con.prepareStatement(sqlBoth);
+                ps.setString(1, transitLineId.trim());
+                String p = "%" + customerName.trim() + "%";
+                ps.setString(2, p);
+                ps.setString(3, p);
+                ps.setString(4, p);
+
+            } else {
+                // no criteria → return empty list
+                return results;
             }
+
+            // execute and auto-close result set
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    results.add(new String[]{
+                        rs.getString("reservation_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("reservation_time"),
+                        rs.getString("transit_line")
+                    });
+                }
+            }
+
         } catch (SQLException e) {
+            // now all SQLExceptions (including close failures) are caught here
             e.printStackTrace();
         }
-        return reservations;
+
+        return results;
     }
+
 }
