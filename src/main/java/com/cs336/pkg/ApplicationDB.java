@@ -109,21 +109,27 @@ public class ApplicationDB {
     }
 
     // Get Top 5 Revenue-Generating Customers
-    public List<String[]> getTopCustomers() {
-        String query = "SELECT email, SUM(total_fare) AS total_revenue FROM reservations GROUP BY customer_id ORDER BY total_revenue DESC LIMIT 5";
-        List<String[]> topCustomers = new ArrayList<>();
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                String[] row = { rs.getString("email"), rs.getString("total_revenue") };
-                topCustomers.add(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+   public List<String[]> getTopCustomers() {
+    String query = "SELECT r.email AS customer_email, SUM(r.total_fare) AS total_revenue " +
+                   "FROM reservations r " +
+                   "JOIN customers c ON r.email = c.email " +
+                   "GROUP BY r.email " +
+                   "ORDER BY total_revenue DESC " +
+                   "LIMIT 5";
+    List<String[]> topCustomers = new ArrayList<>();
+    try (Connection connection = getConnection();
+         PreparedStatement stmt = connection.prepareStatement(query);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            String[] row = { rs.getString("customer_email"), rs.getString("total_revenue") };
+            topCustomers.add(row);
         }
-        return topCustomers;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return topCustomers;
+}
+
 
     // Get Top 5 Most Active Transit Lines
     public List<String[]> getTopTransitLines() {
