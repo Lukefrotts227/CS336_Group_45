@@ -185,10 +185,12 @@ public class AdminServlet extends HttpServlet {
                 try(ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         String[] row = {
-                            rs.getString("username"),
-                            rs.getString("first_name"),
-                            rs.getString("last_name"),
-                            rs.getString("email")
+                        		rs.getString("reservation_id"),
+                        	    rs.getString("username"),      
+                        	    rs.getString("first_name"),    
+                        	    rs.getString("last_name"),     
+                        	    rs.getString("transit_line_name"),
+                        	    rs.getString("reservation_date")  
                         };
                         list.add(row);
                     }

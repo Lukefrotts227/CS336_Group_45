@@ -10,7 +10,7 @@ public class ApplicationDB {
     }
 
     public Connection getConnection() {
-        String connectionUrl = "jdbc:mysql://localhost:3306/cs336_project?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+        String connectionUrl = "jdbc:mysql://localhost:3306/trainbookingdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
         Connection connection = null;
 
         try {
@@ -22,7 +22,7 @@ public class ApplicationDB {
 
         try {
             // Create a connection to the database
-            connection = DriverManager.getConnection(connectionUrl, "root", "1234");
+            connection = DriverManager.getConnection(connectionUrl, "jspuser", "jsp123");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -89,7 +89,11 @@ public class ApplicationDB {
 
     // Get Revenue by Transit Line or Customer
     public String getRevenue(String transitLineId, String customerId) {
-        String query = "SELECT SUM(total_fare) FROM reservations WHERE transit_line_id=? OR customer_id=?";
+        String query = "SELECT SUM(r.total_fare) " +
+        		"FROM reservations r " + 
+        		"JOIN train_schedules ts ON r.schedule_id = ts.schedule_id" +
+        		"JOIN transit_lines tl ON ts.transit_line_name = tl.name" +
+        		"WHERE tl.name=? OR email=?";
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setString(1, transitLineId);

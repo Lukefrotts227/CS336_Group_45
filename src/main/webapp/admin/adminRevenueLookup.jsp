@@ -7,9 +7,9 @@
 
 <form method="post">
     <input type="hidden" name="action" value="revenueLookup" />
-    Transit Line ID: <input type="text" name="transitLineId"><br/>
+    Transit Line: <input type="text" name="transitLineId"><br/>
     OR<br/>
-    Customer ID: <input type="text" name="customerId"><br/><br/>
+    Customer email: <input type="text" name="customerId"><br/><br/>
     <input type="submit" value="Get Revenue">
 </form>
 
