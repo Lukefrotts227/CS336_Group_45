@@ -103,23 +103,53 @@ public class ApplicationDB {
 
     // Get Revenue by Transit Line or Customer
     public String getRevenue(String transitLineId, String customerId) {
-        String query = "SELECT SUM(r.total_fare) " +
-        		"FROM reservations r " + 
-        		"JOIN train_schedules ts ON r.schedule_id = ts.schedule_id" +
-        		"JOIN transit_lines tl ON ts.transit_line_name = tl.name" +
-        		"WHERE tl.name=? OR email=?";
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, transitLineId);
-            stmt.setString(2, customerId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return "0";
+    	String sqlLineOnly =
+    		      "SELECT SUM(r.total_fare) "
+    		    + "FROM reservations r "
+    		    + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+    		    + "WHERE ts.transit_line_name = ?";
+    		    
+    		    String sqlCustomerOnly =
+    		      "SELECT SUM(r.total_fare) "
+    		    + "FROM reservations r "
+    		    + "WHERE r.email = ?";
+    		    
+    		    String sqlBoth =
+    		      "SELECT SUM(r.total_fare) "
+    		    + "FROM reservations r "
+    		    + "JOIN train_schedules ts ON r.schedule_id = ts.schedule_id "
+    		    + "WHERE ts.transit_line_name = ? AND r.email = ?";
+    		    
+    		    boolean hasLine     = transitLineId  != null && !transitLineId.trim().isEmpty();
+    		    boolean hasCustomer = customerId     != null && !customerId.trim().isEmpty();
+    		    if (!hasLine && !hasCustomer) return "0";
+    		    
+    		    String sql = hasLine && hasCustomer
+    		               ? sqlBoth
+    		               : hasLine
+    		               ? sqlLineOnly
+    		               : sqlCustomerOnly;
+    		    
+    		    try (Connection con = getConnection();
+    		         PreparedStatement ps = con.prepareStatement(sql)) {
+    		        
+    		        if (hasLine && hasCustomer) {
+    		            ps.setString(1, transitLineId.trim());
+    		            ps.setString(2, customerId.trim());
+    		        } else {
+    		            ps.setString(1, (hasLine ? transitLineId : customerId).trim());
+    		        }
+    		        
+    		        try (ResultSet rs = ps.executeQuery()) {
+    		            if (rs.next()) {
+    		                String total = rs.getString(1);
+    		                return total != null ? total : "0";
+    		            }
+    		        }
+    		    } catch (SQLException e) {
+    		        e.printStackTrace();
+    		    }
+    		    return "0";
     }
 
     // Get Top 5 Revenue-Generating Customers
