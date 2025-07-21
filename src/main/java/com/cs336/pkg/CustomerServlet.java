@@ -125,7 +125,7 @@ public class CustomerServlet extends HttpServlet {
 					p.executeUpdate(); 
 				}
 
-				request.setAttribute("message", String.format("Successfully Booked! Your fare: $%.2f (%s discount)"), totalFare, category); 
+				request.setAttribute("message", String.format("Successfully Booked! Your fare: $%.2f (%s discount)", totalFare, category)); 
 
 				}catch(Exception e){ e.printStackTrace();}
 

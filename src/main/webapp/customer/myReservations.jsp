@@ -52,7 +52,7 @@
     Connection conn = db.getConnection();
 
     PreparedStatement stmt = conn.prepareStatement(
-        "SELECT r.reservation_id AS reservation_id, ts.train_id, ts.origin_station_id, ts.destination_station_id, ts.departure_date_time, ts.arrival_date_time, ts.fare " +
+        "SELECT r.reservation_id AS reservation_id, ts.train_id, ts.origin_station_id, ts.destination_station_id, ts.departure_date_time, ts.arrival_date_time, r.total_fare " +
         "FROM reservations r JOIN train_schedules ts ON r.schedule_id = ts.schedule_id " +
         "WHERE r.email=?"
     );
@@ -80,7 +80,7 @@
     <td><%= rs.getString("destination_station_id") %></td>
     <td><%= rs.getTimestamp("departure_date_time") %></td>
     <td><%= rs.getTimestamp("arrival_date_time") %></td>
-    <td>$<%= rs.getBigDecimal("fare") %></td>
+    <td>$<%= rs.getBigDecimal("total_fare") %></td>
     <td>
     <form method="post" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
         <input type="hidden" name="cancelId" value="<%= rs.getInt("reservation_id") %>" />

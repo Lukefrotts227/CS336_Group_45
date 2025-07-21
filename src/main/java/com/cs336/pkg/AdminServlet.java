@@ -159,7 +159,7 @@ public class AdminServlet extends HttpServlet {
                 PreparedStatement ps; 
                 if (lineName != null && !lineName.isEmpty()) {
            sql =
-      "SELECT r.reservation_id, c.username, u.first_name, u.last_name, " +
+      "SELECT r.reservation_id, c.username, c.email, u.first_name, u.last_name, " +
       "       ts.transit_line_name, r.reservation_date, r.departure_date_time " +
       "FROM reservations r " +
       "  JOIN customers     c  ON r.email = c.email " +
@@ -170,7 +170,7 @@ public class AdminServlet extends HttpServlet {
             ps.setString(1, lineName);
                 }else{
                     sql =
-      "SELECT r.reservation_id, c.username, u.first_name, u.last_name, " +
+      "SELECT r.reservation_id, c.username, c.email, u.first_name, u.last_name, " +
       "       ts.transit_line_name, r.reservation_date, r.departure_date_time " +
       "FROM reservations r " +
       "  JOIN customers     c  ON r.email = c.email " +

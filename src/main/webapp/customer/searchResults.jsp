@@ -11,8 +11,8 @@
     	Connection conn = db.getConnection();
     	PreparedStatement stopStmt = conn.prepareStatement(
         	"SELECT s.stop_order, st.name, s.arrival_time, s.departure_time " +
-        	"FROM stop s JOIN station st ON s.stationID = st.stationID " +
-        	"WHERE s.scheduleID = ? ORDER BY s.stop_order"
+        	"FROM stops s JOIN stations st ON s.station_id = st.station_id " +
+        	"WHERE s.schedule_id = ? ORDER BY s.stop_order"
     	);
     	stopStmt.setInt(1, Integer.parseInt(viewStopsFor));
     	ResultSet stopsRs = stopStmt.executeQuery();
@@ -33,6 +33,7 @@
 	}
 	String email = (String) session.getAttribute("email");
 	String reserveScheduleId = request.getParameter("reserveScheduleId");
+	String discountCategory = request.getParameter("category");
 
 	if ("POST".equalsIgnoreCase(request.getMethod()) && reserveScheduleId != null && email != null) {
 	    ApplicationDB dbReserve = new ApplicationDB();
@@ -66,6 +67,23 @@
 	            }
 	        } else {
 	            reservationType = "one way";
+	        }
+	        
+	        if (discountCategory != null) {
+	            switch (discountCategory) {
+	                case "child":
+	                    totalFare = totalFare.multiply(new java.math.BigDecimal("0.75")); // 50% off
+	                    break;
+	                case "senior":
+	                    totalFare = totalFare.multiply(new java.math.BigDecimal("0.65")); // 30% off
+	                    break;
+	                case "disabled":
+	                    totalFare = totalFare.multiply(new java.math.BigDecimal("0.55")); // 40% off
+	                    break;
+	                default:
+	                    // no discount
+	                    break;
+	            }
 	        }
 	    }
 	    infoRs.close();
@@ -167,6 +185,13 @@
     <td>
       <form method="post" style="margin:0;">
         <input type="hidden" name="reserveScheduleId" value="<%= sid %>" />
+        <label for="category-<%= sid %>">Discount:</label>
+  		<select name="category" id="category-<%= sid %>">
+    		<option value="none">None</option>
+    		<option value="disabled">Disability</option>
+    		<option value="senior">Senior</option>
+    		<option value="child">Child</option>
+  		</select>
         <input type="submit" value="Reserve" />
       </form>
     </td>
@@ -180,7 +205,7 @@
       <strong>Stops:</strong>
       <ul>
         <% for (String[] stop : stopsList) { %>
-          <li><%= stop[0] %>. <%= stop[1] %> - Arr: <%= stop[2] %>, Dep: <%= stop[3] %></li>
+          <li><%= stop[0] %>. <%= stop[1] %> - Arrive: <%= stop[2] %>, Depart: <%= stop[3] %></li>
         <% } %>
       </ul>
     </td>
