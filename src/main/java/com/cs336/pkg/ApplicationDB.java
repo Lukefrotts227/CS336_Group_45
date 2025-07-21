@@ -123,7 +123,11 @@ public class ApplicationDB {
 
     // Get Top 5 Most Active Transit Lines
     public List<String[]> getTopTransitLines() {
-        String query = "SELECT transit_line_id, COUNT(*) AS reservation_count FROM reservations GROUP BY transit_line_id ORDER BY reservation_count DESC LIMIT 5";
+        String query = "SELECT transit_line_id, COUNT(*) AS reservation_count " +
+                       "FROM reservations " +
+                       "GROUP BY transit_line_id " +
+                       "ORDER BY reservation_count DESC " +
+                       "LIMIT 5";
         List<String[]> topTransitLines = new ArrayList<>();
         try (Connection connection = getConnection();
              PreparedStatement stmt = connection.prepareStatement(query);
@@ -137,6 +141,7 @@ public class ApplicationDB {
         }
         return topTransitLines;
     }
+
 
     // Get Reservations by Transit Line or Customer Name
     public List<String[]> getReservationsByCriteria(String transitLineId, String customerName) {
