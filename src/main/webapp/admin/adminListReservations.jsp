@@ -7,9 +7,9 @@
 
 <form method="post">
     <input type="hidden" name="action" value="listReservations" />
-    Transit Line ID: <input type="text" name="transitLineId"><br/>
+    Transit Line: <input type="text" name="transitLineId"><br/>
     OR<br/>
-    Customer Name: <input type="text" name="customerName"><br/><br/>
+    Customer Email: <input type="text" name="customerName"><br/><br/>
     <input type="submit" value="List Reservations">
 </form>
 
