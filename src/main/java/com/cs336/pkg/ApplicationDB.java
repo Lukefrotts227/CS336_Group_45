@@ -39,31 +39,45 @@ public class ApplicationDB {
     }
 
     // Save or Edit Representative
-    public void saveRep(String id, String name, String email, String phone) {
-        String query = "INSERT INTO customer_representatives (id, name, email, phone) " +
-                       "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE name=?, email=?, phone=?";
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, id);
-            stmt.setString(2, name);
-            stmt.setString(3, email);
-            stmt.setString(4, phone);
-            stmt.setString(5, name);
-            stmt.setString(6, email);
-            stmt.setString(7, phone);
-            stmt.executeUpdate();
+    public boolean saveRep(String first_name, String last_name, String username, String password, String ssn) {
+        Connection connection = getConnection();
+        try {
+        	String userQuery = "INSERT INTO users (username, password, first_name, last_name) " +
+                    "VALUES (?, ?, ?, ?)";
+            PreparedStatement userStmt = connection.prepareStatement(userQuery);
+            userStmt.setString(3, username);
+            userStmt.setString(4, password);
+            userStmt.setString(1, first_name);
+            userStmt.setString(2, last_name);
+            userStmt.executeUpdate();
+            
+            String empQuery = "INSERT INTO employees (ssn, username, role) VALUES (?, ?, ?)";
+            PreparedStatement empStmt = connection.prepareStatement(empQuery);
+            empStmt.setString(1, ssn);
+            empStmt.setString(2, username);
+            empStmt.setString(3, "representative");
+            empStmt.executeUpdate();
+            
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
     // Delete Representative
-    public void deleteRep(String id) {
-        String query = "DELETE FROM customer_representatives WHERE id=?";
-        try (Connection connection = getConnection();
-             PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setString(1, id);
-            stmt.executeUpdate();
+    public void deleteRep(String username) {
+    	Connection connection = getConnection();
+        try {
+        	String empQuery = "DELETE FROM employees WHERE username=?";
+            PreparedStatement empStmt = connection.prepareStatement(empQuery);
+            empStmt.setString(1, username);
+            empStmt.executeUpdate();
+            
+            String userQuery = "DELETE FROM User WHERE username = ?";
+            PreparedStatement userStmt = connection.prepareStatement(userQuery);
+            userStmt.setString(1, username);
+            userStmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
