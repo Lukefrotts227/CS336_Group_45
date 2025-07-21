@@ -24,7 +24,7 @@
 </ul>
 
 <!-- Logout Button -->
-<form action="logout.jsp" method="get">
+<form action="../logout.jsp" method="get">
     <input type="submit" value="Logout" />
 </form>
 
